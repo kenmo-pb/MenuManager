@@ -1,0 +1,36 @@
+<MenuManager>
+  <items>
+    <item mmid='my-os'
+        winname='Windows starts with' winshortcut='W'
+        macname='Mac starts with' macshortcut='M'
+        linuxname='Linux starts with' linuxshortcut='L'
+        />
+    <item name='_Quit' shortcut='Cmd-Q' />
+  </items>
+  
+  <menus>
+    <menu mmid='main'>
+      <if os='windows'>
+        <title name='_Windows!'>
+          <item mmid='my-os' />
+          <bar />
+          <item mmid='quit' />
+        </title>
+      </if>
+      <if os='macos'>
+        <title name='_MacOS!'>
+          <item mmid='my-os' />
+          <bar />
+          <item mmid='quit' />
+        </title>
+      </if>
+      <if os='linux'>
+        <title name='_Linux!'>
+          <item mmid='my-os' />
+          <bar />
+          <item mmid='quit' />
+        </title>
+      </if>
+    </menu>
+  </menus>
+</MenuManager>

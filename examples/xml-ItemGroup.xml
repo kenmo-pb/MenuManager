@@ -1,0 +1,16 @@
+<MenuManager>
+  <items>
+    <item name='Recent File' mmid='recentfile' callback='RecentFileCallback()' number='1' N='5' />
+    <item name='_Quit' shortcut='Cmd-Q' flags='close' />
+  </items>
+  
+  <menus>
+    <menu mmid='main'>
+      <title name='_File'>
+        <item mmid='recentfile' N='5' />
+        <bar />
+        <item mmid='quit' />
+      </title>
+    </menu>
+  </menus>
+</MenuManager>

@@ -1,0 +1,23 @@
+<MenuManager>
+  <items>
+    <!-- Use underscore '_' to underline the next character (on Windows) -->
+    <!-- Cmd maps to Ctrl on Windows and Linux -->
+    <item name='_New' shortcut='Cmd-N' />
+    <item name='_Quit' shortcut='Cmd-Q' />
+    <item name='_Help' shortcut='F1' />
+  </items>
+  
+  <menus>
+    <menu mmid='main'>
+      <!-- Underscores work in Menu Titles too (on Windows) -->
+      <title name='_File'>
+        <item mmid='new' />
+        <bar />
+        <item mmid='quit' />
+      </title>
+      <hidden>
+        <item mmid='help' />
+      </hidden>
+    </menu>
+  </menus>
+</MenuManager>

@@ -1,0 +1,32 @@
+<MenuManager>
+  <items>
+    <group name='File'>
+      <item name='_New' shortcut='Cmd-N' />
+      <item name='_Quit' shortcut='Cmd-Q' />
+    </group>
+    <group name='Edit'>
+      <item name='_Copy' shortcut='Cmd-C' />
+      <item name='_Paste' shortcut='Cmd-V' />
+    </group>
+    <group name='Help'>
+      <item name='_Help' shortcut='F1' />
+    </group>
+  </items>
+  
+  <menus>
+    <menu mmid='main'>
+      <title name='_File'>
+        <item mmid='new' />
+        <bar />
+        <item mmid='quit' />
+      </title>
+      <title name='_Edit'>
+        <item mmid='copy' />
+        <item mmid='paste' />
+      </title>
+      <title name='_Help'>
+        <item mmid='help' />
+      </title>
+    </menu>
+  </menus>
+</MenuManager>

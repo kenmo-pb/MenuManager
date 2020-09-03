@@ -1,0 +1,22 @@
+<MenuManager>
+  <items>
+    <item name='_New' shortcut='Cmd-N' image='#Img_New' />
+    <item name='_Open' shortcut='Cmd-O' image='1' />
+    <item name='_Delete' shortcut='Del' image='@https://github.com/fantaisie-software/purebasic/raw/master/PureBasicIDE/data/SilkTheme/delete.png' />
+  </items>
+  
+  <menus>
+    <menu mmid='main'>
+      <title name='_File'>
+        <item mmid='new' />
+        <item mmid='open' />
+        <item mmid='delete' />
+      </title>
+    </menu>
+    <menu mmid='popup'>
+      <item mmid='new' />
+      <item mmid='open' />
+      <item mmid='delete' />
+    </menu>
+  </menus>
+</MenuManager>

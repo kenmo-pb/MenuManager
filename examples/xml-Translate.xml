@@ -1,0 +1,27 @@
+<MenuManager translate='TranslateProc()'>
+  <items>
+    <item mmid='new' />
+    <item mmid='quit' />
+    <item mmid='help' />
+    <item mmid='about' />
+    <item mmid='toggle' shortcut='space' callback='ToggleLanguage()' />
+  </items>
+  
+  <menus>
+    <menu mmid='main'>
+      <title mmid='title-file'>
+        <item mmid='new' />
+        <bar />
+        <item mmid='quit' />
+      </title>
+      <title mmid='title-help'>
+        <item mmid='help' />
+        <bar />
+        <item mmid='about' />
+      </title>
+      <hidden>
+        <item mmid='toggle' />
+      </hidden>
+    </menu>
+  </menus>
+</MenuManager>

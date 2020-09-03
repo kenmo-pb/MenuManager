@@ -1,0 +1,32 @@
+<MenuManager>
+  <items>
+    <item name='_Quit' shortcut='Cmd-Q' flags='close' />
+    <if os='win'>
+      <item name='Windows' mmid='os' />
+    </if>
+    <if os='mac'>
+      <item name='MacOS' mmid='os' />
+    </if>
+    <if os='linux'>
+      <item name='Linux' mmid='os' />
+    </if>
+  </items>
+  
+  <menus>
+    <menu mmid='main'>
+      <if Is64Bit='1'>
+        <title name='64-bit!'>
+          <item mmid='quit' />
+        </title>
+        <else>
+          <title name='32-bit!'>
+            <item mmid='quit' />
+          </title>
+        </else>
+      </if>
+      <title name='My OS'>
+        <item mmid='os' />
+      </title>
+    </menu>  
+  </menus>
+</MenuManager>

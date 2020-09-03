@@ -1,37 +1,20 @@
-﻿; +-----------------------------------------+
-; | MenuManager Example: Simple Window Menu |
-; +-----------------------------------------+
+﻿; +-----------------------------+
+; | MenuManager Example: Simple |
+; +-----------------------------+
 
 XIncludeFile "../MenuManager.pbi"
+XIncludeFile "Examples-Common.pbi"
 
-Runtime Enumeration
-  #New  = 5
-  #Quit
-  #Help
-  #About
-EndEnumeration
+Procedure DebugCallback()
+  Debug MenuManagerNameFromNumber(EventMenu())
+EndProcedure
 
+LoadMenuManager("xml-Simple.xml")
+Message.s = "Simple Example" + #LF$ + #LF$ + "Try the menu and keyboard shorcuts" + #LF$ + "(including the hidden F1 shortcut)"
+OpenExampleWindow(0, "MenuManager - Simple", Message)
+BuildManagedMenu(0, 0, "main")
+BindEvent(#PB_Event_Menu, @DebugCallback())
 
+Repeat : Until (WaitWindowEvent() = #PB_Event_CloseWindow)
+FreeMenuManager()
 
-
-If LoadMenuManager("Simple.xml")
-  
-  Flags = #PB_Window_ScreenCentered | #PB_Window_SystemMenu
-  OpenWindow(0, 0, 0, 320, 240, "MenuManager", Flags)
-  
-  BuildManagedMenu(0, 0, "main")
-  
-  Repeat
-    Event = WaitWindowEvent()
-    If (Event = #PB_Event_Menu)
-      Debug "Menu Event: " + Str(EventMenu())
-      If (EventMenu() = #Quit)
-        Event = #PB_Event_CloseWindow
-      EndIf
-    EndIf
-  Until (Event = #PB_Event_CloseWindow)
-  
-  FreeMenuManager()
-Else
-  Debug "Failed to load!"
-EndIf
