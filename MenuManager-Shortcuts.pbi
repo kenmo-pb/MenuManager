@@ -225,6 +225,7 @@ Procedure.i IsReservedShortcut(Shortcut.i)
   Select (Shortcut)
     Case #PB_Shortcut_Alt | #PB_Shortcut_Tab,
         #PB_Shortcut_Alt | #PB_Shortcut_Shift | #PB_Shortcut_Tab
+      Result = #True
   EndSelect
   
   CompilerIf (#_MenuManager_OS = #PB_OS_Windows)
@@ -388,7 +389,16 @@ DataSection
     Data.l ';' : Data.i @";"
     Data.l ';' : Data.i @":"
     Data.l $27 : Data.i @"'"
-    Data.l $27 : Data.i ?_MenuManager_DQUOTE
+    
+    Data.l $27
+    CompilerIf (#True)
+      Data.i ?_MenuManager_DQUOTE
+    CompilerElse
+      ; PB 6.00b3 C Backend requires this to be patched at runtime
+      _MenuManager_DQUOTEPatch1:
+      Data.i #Null
+    CompilerEndIf
+    
     Data.l '-' : Data.i @"Minus"
     Data.l '=' : Data.i @"Plus"
     Data.l ',' : Data.i @","
@@ -608,7 +618,16 @@ DataSection
     Data.l #VK_OEM_6 : Data.i @"]"
     Data.l #VK_OEM_6 : Data.i @"}"
     Data.l #VK_OEM_7 : Data.i @"'"
-    Data.l #VK_OEM_7 : Data.i ?_MenuManager_DQUOTE
+    
+    Data.l #VK_OEM_7
+    CompilerIf (#True)
+      Data.i ?_MenuManager_DQUOTE
+    CompilerElse
+      ; PB 6.00b3 C Backend requires this to be patched at runtime
+      _MenuManager_DQUOTEPatch2:
+      Data.i #Null
+    CompilerEndIf
+    
     ;Data.l #VK_OEM_8 : Data.i "OEM_8"
     ;Data.l #VK_OEM_102 : Data.i "OEM_102"
   CompilerEndIf
@@ -625,6 +644,13 @@ DataSection
   ;
   Data.l -1 : Data.i #Null
 EndDataSection
+
+CompilerIf (Defined(_MenuManager_DQUOTEPatch1, #PB_Label))
+  PokeI(?_MenuManager_DQUOTEPatch1, ?_MenuManager_DQUOTE)
+CompilerEndIf
+CompilerIf (Defined(_MenuManager_DQUOTEPatch2, #PB_Label))
+  PokeI(?_MenuManager_DQUOTEPatch2, ?_MenuManager_DQUOTE)
+CompilerEndIf
 
 
 CompilerEndIf
