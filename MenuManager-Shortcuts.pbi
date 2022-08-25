@@ -53,6 +53,12 @@ EndEnumeration
 #_MM_ModifierMask =  #PB_Shortcut_Control | #PB_Shortcut_Command | #PB_Shortcut_Shift | #PB_Shortcut_Alt
 #_MM_BaseKeyMask  = ~#_MM_ModifierMask
 
+#_MM_MacCtrl  = Chr($2303) ; UP ARROWHEAD
+#_MM_MacCmd   = Chr($2318) ; PLACE OF INTEREST SIGN
+#_MM_MacAlt   = Chr($2325) ; OPTION KEY
+#_MM_MacShift = Chr($21E7) ; UPWARDS WHITE ARROW
+#_MM_MacCaps  = Chr($21EA) ; UPWARDS WHITE ARROW FROM BAR
+
 ;-
 ;- Structures - Private
 
@@ -252,6 +258,15 @@ Procedure.i ParseShortcut(Text.s, Flags.i = #PB_Default)
   ;   #MenuManager_AllowNoBaseKey
   
   Protected Result.i = #Null
+  
+  CompilerIf (#True)
+    Text = ReplaceString(Text, #_MM_MacCmd, "Cmd+")
+    Text = ReplaceString(Text, #_MM_MacCtrl, "Ctrl+")
+    Text = ReplaceString(Text, #_MM_MacShift, "Shift+")
+    Text = ReplaceString(Text, #_MM_MacAlt, "Alt+")
+    Text = ReplaceString(Text, #_MM_MacCaps, "CapsLock")
+  CompilerEndIf
+  
   Text = RemoveString(Text, " ")
   Text = UCase(Text)
   ReplaceString(Text, "+", " ", #PB_String_InPlace)
@@ -329,7 +344,9 @@ Procedure.s ComposeShortcut(Shortcut.i, Flags.i = #PB_Default)
   Shortcut = NormalizeShortcut(Shortcut)
   
   Protected Separator.s
-  If (Flags & #MenuManager_UsePlus)
+  If (Flags & #MenuManager_UseMacSymbols)
+    Separator = ""
+  ElseIf (Flags & #MenuManager_UsePlus)
     Separator = "+"
   ElseIf (Flags & #MenuManager_UseHyphen)
     Separator = "-"
@@ -337,23 +354,40 @@ Procedure.s ComposeShortcut(Shortcut.i, Flags.i = #PB_Default)
     Separator = "+"
   EndIf
   If (Flags & #MenuManager_Spaces)
-    Separator = " " + Separator + " "
-  EndIf
-  
-  If (#PB_Shortcut_Command <> #PB_Shortcut_Control)
-    If (Shortcut & #PB_Shortcut_Command)
-      Result + Separator + "Cmd"
+    If (Separator <> "")
+      Separator = " " + Separator + " "
+    Else
+      Separator = " "
     EndIf
   EndIf
-  If (Shortcut & #PB_Shortcut_Control)
-    Result + Separator + "Ctrl"
+  
+  Protected CmdString.s   = "Cmd"
+  Protected CtrlString.s  = "Ctrl"
+  Protected ShiftString.s = "Shift"
+  Protected AltString.s   = "Alt"
+  If (Flags & #MenuManager_UseMacSymbols)
+    CmdString   = #_MM_MacCmd
+    CtrlString  = #_MM_MacCtrl
+    ShiftString = #_MM_MacShift
+    AltString   = #_MM_MacAlt
   EndIf
-  If (Shortcut & #PB_Shortcut_Shift)
-    Result + Separator + "Shift"
-  EndIf
-  If (Shortcut & #PB_Shortcut_Alt)
-    Result + Separator + "Alt"
-  EndIf
+  
+  CompilerIf (#True)
+    If (#PB_Shortcut_Command <> #PB_Shortcut_Control)
+      If (Shortcut & #PB_Shortcut_Command)
+        Result + Separator + CmdString
+      EndIf
+    EndIf
+    If (Shortcut & #PB_Shortcut_Control)
+      Result + Separator + CtrlString
+    EndIf
+    If (Shortcut & #PB_Shortcut_Shift)
+      Result + Separator + ShiftString
+    EndIf
+    If (Shortcut & #PB_Shortcut_Alt)
+      Result + Separator + AltString
+    EndIf
+  CompilerEndIf
   
   Shortcut = (Shortcut & #_MM_BaseKeyMask)
   If (Shortcut)
@@ -382,6 +416,16 @@ EndProcedure
 DataSection
   _MenuManager_DQUOTE:
   Data.s #DQUOTE$
+  _MenuManager_MACCMD:
+  Data.s #_MM_MacCmd
+  _MenuManager_MACCTRL:
+  Data.s #_MM_MacCtrl
+  _MenuManager_MACALT:
+  Data.s #_MM_MacAlt
+  _MenuManager_MACSHIFT:
+  Data.s #_MM_MacShift
+  _MenuManager_MACCAPS:
+  Data.s #_MM_MacCaps
   
   _MenuManager_ShortcutList:
   ;
@@ -436,6 +480,7 @@ DataSection
     Data.l #PB_Shortcut_Capital : Data.i @"Caps"
     Data.l #PB_Shortcut_Capital : Data.i @"Cap"
     Data.l #PB_Shortcut_Capital : Data.i @"Capital"
+    Data.l #PB_Shortcut_Capital : Data.i ?_MenuManager_MACCAPS
   CompilerEndIf
   Data.l #PB_Shortcut_Escape : Data.i @"Esc"
   Data.l #PB_Shortcut_Escape : Data.i @"Escape"
@@ -635,12 +680,16 @@ DataSection
   Data.l #PB_Shortcut_Control : Data.i @"Ctrl"
   Data.l #PB_Shortcut_Control : Data.i @"Control"
   Data.l #PB_Shortcut_Control : Data.i @"Ctr"
+  Data.l #PB_Shortcut_Control : Data.i ?_MenuManager_MACCTRL
   Data.l #PB_Shortcut_Command : Data.i @"Cmd"
   Data.l #PB_Shortcut_Command : Data.i @"Comm"
   Data.l #PB_Shortcut_Command : Data.i @"Command"
-  Data.l #PB_Shortcut_Alt : Data.i @"Alt"
-  Data.l #PB_Shortcut_Shift : Data.i @"Shift"
-  Data.l #PB_Shortcut_Shift : Data.i @"Shi"
+  Data.l #PB_Shortcut_Command : Data.i ?_MenuManager_MACCMD
+  Data.l #PB_Shortcut_Alt     : Data.i @"Alt"
+  Data.l #PB_Shortcut_Alt     : Data.i ?_MenuManager_MACALT
+  Data.l #PB_Shortcut_Shift   : Data.i @"Shift"
+  Data.l #PB_Shortcut_Shift   : Data.i @"Shi"
+  Data.l #PB_Shortcut_Shift   : Data.i ?_MenuManager_MACSHIFT
   ;
   Data.l -1 : Data.i #Null
 EndDataSection
