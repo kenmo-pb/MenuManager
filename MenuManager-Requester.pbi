@@ -42,7 +42,7 @@ Procedure.i ShortcutRequester(Title.s = "", Message.s = "", InitialShortcut.i = 
     CancelValue     = NormalizeShortcut(CancelValue)
   CompilerEndIf
   
-  ; TODO: Use DPI-aware scaling factors
+  ; TODO: Use DPI-aware scaling
   Protected ScalingX.f = 1.0
   Protected ScalingY.f = 1.0
   

@@ -1,7 +1,7 @@
 <MenuManager translate='TranslateProc()'>
   <items>
     <item mmid='new' />
-    <item mmid='quit' />
+    <item mmid='quit' shortcut='Cmd-Q' flags='close' />
     <item mmid='help' />
     <item mmid='about' />
     <item mmid='toggle' shortcut='space' callback='ToggleLanguage()' />

@@ -186,6 +186,16 @@ Macro _MenuManager_Warn(Message)
   CompilerEndIf
 EndMacro
 
+CompilerIf (#PB_Compiler_Version >= 600)
+  Macro _MenuManager_InitNetwork()
+    (#True)
+  EndMacro
+CompilerElse
+  Macro _MenuManager_InitNetwork()
+    InitNetwork()
+  EndMacro
+CompilerEndIf
+
 ;-
 ;- Procedures - Private
 
@@ -529,7 +539,7 @@ Procedure.i _MenuManager_ParseImage(*MM.MenuManager, Text.s)
       EndIf
     ElseIf (FindString(Text, "://"))
       CompilerIf (#MenuManager_UseNetworkImages)
-        If (InitNetwork())
+        If (_MenuManager_InitNetwork())
           Protected Domain.s = LCase(GetURLPart(Text, #PB_URL_Protocol) + "://" + GetURLPart(Text, #PB_URL_Site))
           Protected Skip.i = #False
           CompilerIf (#MenuManager_SkipFailedDomains)

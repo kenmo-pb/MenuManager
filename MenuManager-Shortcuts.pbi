@@ -128,18 +128,22 @@ Procedure.i NormalizeShortcut(Shortcut.i)
     ProcedureReturn (Shortcut)
   EndIf
   
-  ; Currently, all shortcut normalization is only for handling MacOS
-  CompilerIf (#PB_Compiler_OS <> #PB_OS_MacOS)
-    ProcedureReturn (Shortcut)
-  CompilerEndIf
-  
   Protected Modifiers.i = GetShortcutModifiers(Shortcut)
   Protected BaseKey.i   = GetShortcutBaseKey(Shortcut)
   
-  CompilerIf (#PB_Compiler_OS = #PB_OS_MacOS)
-    If ((BaseKey >= 'A') And (BaseKey <= 'Z'))
-      BaseKey = 'a' + (BaseKey - 'A')
-    EndIf
+  CompilerIf (#True) ; Normalize uppercase/lowercase to #PB_Shortcut_*
+    CompilerIf ((#PB_Shortcut_A = 'A') And (#PB_Shortcut_Z = 'Z'))
+      If ((BaseKey >= 'a') And (BaseKey <= 'z'))
+        BaseKey = 'A' + (BaseKey - 'a')
+      EndIf
+    CompilerElseIf ((#PB_Shortcut_A = 'a') And (#PB_Shortcut_Z = 'z'))
+      If ((BaseKey >= 'A') And (BaseKey <= 'Z'))
+        BaseKey = 'a' + (BaseKey - 'A')
+      EndIf
+    CompilerEndIf
+  CompilerEndIf
+  
+  CompilerIf (#_MenuManager_OS = #PB_OS_MacOS)
     
     If (#True);(Modifiers & #PB_Shortcut_Shift)
       CompilerIf (#True) ; US English Layout
@@ -158,10 +162,12 @@ Procedure.i NormalizeShortcut(Shortcut.i)
             BaseKey = #PB_Shortcut_6
           Case '&'
             BaseKey = #PB_Shortcut_7
-          ;Case '*' ; Shift+8 ('*') conflicts with PadMult
-          ;  If (Modifiers & #PB_Shortcut_Shift)
-          ;    BaseKey = #PB_Shortcut_8
-          ;  EndIf
+          Case '*'
+            CompilerIf (#_MenuManager_OS <> #PB_OS_MacOS) ; Shift+8 ('*') conflicts with PadMult
+              If (Modifiers & #PB_Shortcut_Shift)
+                BaseKey = #PB_Shortcut_8
+              EndIf
+            CompilerEndIf
           Case '('
             BaseKey = #PB_Shortcut_9
           Case ')'
@@ -169,6 +175,7 @@ Procedure.i NormalizeShortcut(Shortcut.i)
         EndSelect
       CompilerEndIf
     EndIf
+    
   CompilerEndIf
   
   ProcedureReturn (BaseKey | Modifiers)
@@ -399,6 +406,8 @@ Procedure.s ComposeShortcut(Shortcut.i, Flags.i = #PB_Default)
     EndIf
     If (Base)
       Result + Separator + Base
+    ElseIf (((Shortcut >= $20) And (Shortcut <= $7F)) And (#_MenuManager_OS = #PB_OS_Linux)) ; fall back to ASCII character (enable on all OS?)
+      Result + Separator + Chr(Shortcut)
     Else
       Result + Separator + "?"
     EndIf
@@ -615,19 +624,21 @@ DataSection
   Data.l #PB_Shortcut_F10 : Data.i @"F10"
   Data.l #PB_Shortcut_F11 : Data.i @"F11"
   Data.l #PB_Shortcut_F12 : Data.i @"F12"
-  CompilerIf ((#PB_Shortcut_F13 <> #Null) And (#PB_Shortcut_F24 <> #Null))
-    Data.l #PB_Shortcut_F13 : Data.i @"F13"
-    Data.l #PB_Shortcut_F14 : Data.i @"F14"
-    Data.l #PB_Shortcut_F15 : Data.i @"F15"
-    Data.l #PB_Shortcut_F16 : Data.i @"F16"
-    Data.l #PB_Shortcut_F17 : Data.i @"F17"
-    Data.l #PB_Shortcut_F18 : Data.i @"F18"
-    Data.l #PB_Shortcut_F19 : Data.i @"F19"
-    Data.l #PB_Shortcut_F20 : Data.i @"F20"
-    Data.l #PB_Shortcut_F21 : Data.i @"F21"
-    Data.l #PB_Shortcut_F22 : Data.i @"F22"
-    Data.l #PB_Shortcut_F23 : Data.i @"F23"
-    Data.l #PB_Shortcut_F24 : Data.i @"F24"
+  CompilerIf (Defined(PB_Shortcut_F13, #PB_Constant) And Defined(PB_Shortcut_F24, #PB_Constant))
+    CompilerIf ((#PB_Shortcut_F13 <> #Null) And (#PB_Shortcut_F24 <> #Null))
+      Data.l #PB_Shortcut_F13 : Data.i @"F13"
+      Data.l #PB_Shortcut_F14 : Data.i @"F14"
+      Data.l #PB_Shortcut_F15 : Data.i @"F15"
+      Data.l #PB_Shortcut_F16 : Data.i @"F16"
+      Data.l #PB_Shortcut_F17 : Data.i @"F17"
+      Data.l #PB_Shortcut_F18 : Data.i @"F18"
+      Data.l #PB_Shortcut_F19 : Data.i @"F19"
+      Data.l #PB_Shortcut_F20 : Data.i @"F20"
+      Data.l #PB_Shortcut_F21 : Data.i @"F21"
+      Data.l #PB_Shortcut_F22 : Data.i @"F22"
+      Data.l #PB_Shortcut_F23 : Data.i @"F23"
+      Data.l #PB_Shortcut_F24 : Data.i @"F24"
+    CompilerEndIf
   CompilerEndIf
   ;
   Data.l #PB_Shortcut_Numlock : Data.i @"NumLock"

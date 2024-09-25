@@ -1,11 +1,8 @@
 ### To Do
 - Documentation!
-- 'Scope' of items, so shortcuts can be reused (eg. for main window vs. child)
-- A 2nd (or more!) file/parser format so Expat XML is not a requirement
-- ShortcutRequester: handle DPI scaling
+- 'Scope' of items, so shortcuts can be used multiple times (eg. for main window vs. child)
+- Another file/parser format so Expat XML is not a requirement (eg. JSON)
+- ShortcutRequester: DPI scaling
 
 ### Mac
-- Handle Shift+Letter or Shift+Number on non-US non-English keyboard layouts!
-
-### Linux
-- Not yet tested!
+- Handle Shift+Letter and Shift+Number on non-US non-English keyboard layouts!

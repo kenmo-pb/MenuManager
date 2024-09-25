@@ -5,7 +5,7 @@
         macname='Mac starts with' macshortcut='M'
         linuxname='Linux starts with' linuxshortcut='L'
         />
-    <item name='_Quit' shortcut='Cmd-Q' />
+    <item name='_Quit' shortcut='Cmd-Q' flags='close' />
   </items>
   
   <menus>

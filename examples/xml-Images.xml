@@ -3,6 +3,7 @@
     <item name='_New' shortcut='Cmd-N' image='#Img_New' />
     <item name='_Open' shortcut='Cmd-O' image='1' />
     <item name='_Delete' shortcut='Del' image='@https://github.com/fantaisie-software/purebasic/raw/master/PureBasicIDE/data/SilkTheme/delete.png' />
+    <item name='_Quit' shortcut='Cmd-Q' flags='close' />
   </items>
   
   <menus>
@@ -11,6 +12,8 @@
         <item mmid='new' />
         <item mmid='open' />
         <item mmid='delete' />
+        <bar />
+        <item mmid='quit' />
       </title>
     </menu>
     <menu mmid='popup'>
