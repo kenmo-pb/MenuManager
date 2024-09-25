@@ -10,7 +10,7 @@ CompilerIf (Not Defined(_MenuManager_Requester_Included, #PB_Constant))
 
 CompilerIf (#PB_Compiler_IsMainFile)
   EnableExplicit
-  XIncludeFile "MenuManager.pbi"
+  ;XIncludeFile "MenuManager.pbi"
 CompilerEndIf
 
 CompilerIf (Not Defined(PB_Window_NoActivate, #PB_Constant))
