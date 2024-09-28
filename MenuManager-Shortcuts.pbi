@@ -131,7 +131,7 @@ Procedure.i NormalizeShortcut(Shortcut.i)
   Protected Modifiers.i = GetShortcutModifiers(Shortcut)
   Protected BaseKey.i   = GetShortcutBaseKey(Shortcut)
   
-  CompilerIf (#True) ; Normalize uppercase/lowercase to #PB_Shortcut_*
+  CompilerIf (#_MenuManager_OS <> #PB_OS_Windows) ; Normalize uppercase/lowercase to #PB_Shortcut_*
     CompilerIf ((#PB_Shortcut_A = 'A') And (#PB_Shortcut_Z = 'Z'))
       If ((BaseKey >= 'a') And (BaseKey <= 'z'))
         BaseKey = 'A' + (BaseKey - 'a')
