@@ -267,17 +267,17 @@ Procedure.i ParseShortcut(Text.s, Flags.i = #PB_Default)
   Protected Result.i = #Null
   
   CompilerIf (#True)
-    Text = ReplaceString(Text, #_MM_MacCmd, "Cmd+")
-    Text = ReplaceString(Text, #_MM_MacCtrl, "Ctrl+")
+    Text = ReplaceString(Text, #_MM_MacCmd,   "Cmd+")
+    Text = ReplaceString(Text, #_MM_MacCtrl,  "Ctrl+")
     Text = ReplaceString(Text, #_MM_MacShift, "Shift+")
-    Text = ReplaceString(Text, #_MM_MacAlt, "Alt+")
-    Text = ReplaceString(Text, #_MM_MacCaps, "CapsLock")
+    Text = ReplaceString(Text, #_MM_MacAlt,   "Alt+")
+    Text = ReplaceString(Text, #_MM_MacCaps,  "CapsLock")
   CompilerEndIf
   
   Text = RemoveString(Text, " ")
-  Text = UCase(Text)
   ReplaceString(Text, "+", " ", #PB_String_InPlace)
   ReplaceString(Text, "-", " ", #PB_String_InPlace)
+  Text = UCase(Text)
   
   If (Flags = #PB_Default)
     Flags = #Null
@@ -311,8 +311,12 @@ Procedure.i ParseShortcut(Text.s, Flags.i = #PB_Default)
               Protected Value.i = _MM_ShortcutValueByName(Term, #_MM_BaseKeyMask)
               If (Value)
                 Result | Value
+              ElseIf ((Left(Term, 2) = "0X") And (Len(Term) >= 3)) ; accept raw hex value, "0x" prefix
+                Result | Val("$" + Mid(Term, 3))
+              ElseIf ((Left(Term, 1) = "$") And (Len(Term) >= 2)) ; accept raw hex value, "$" prefix
+                Result | Val(Term)
               Else
-                Debug "Parse term: " + Term
+                Debug #PB_Compiler_Filename + ": " + #PB_Compiler_Procedure + "() term: " + Term
                 Result = #Null
                 Break
               EndIf
@@ -404,13 +408,23 @@ Procedure.s ComposeShortcut(Shortcut.i, Flags.i = #PB_Default)
         Base = "Return"
       EndIf
     EndIf
+    
     If (Base)
       Result + Separator + Base
-    ElseIf (((Shortcut >= $20) And (Shortcut <= $7F)) And (#_MenuManager_OS = #PB_OS_Linux)) ; fall back to ASCII character (enable on all OS?)
+    ElseIf ((Shortcut >= $20) And (Shortcut <= $7E)) ; fall back to ASCII character
       Result + Separator + Chr(Shortcut)
     Else
-      Result + Separator + "?"
+      CompilerIf (#True) ; finally: fall back to raw hex value
+        If (#True)
+          Result + Separator + "0x" + UCase(Hex(Shortcut))
+        Else
+          Result + Separator + "$" + UCase(Hex(Shortcut))
+        EndIf
+      CompilerElse
+        Result + Separator + "?"
+      CompilerEndIf
     EndIf
+    
     Result = Mid(Result, 1 + Len(Separator))
   ElseIf (#True)
     Result = "None"
