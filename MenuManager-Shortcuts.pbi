@@ -47,6 +47,8 @@ Enumeration
   #MenuManager_UseReturnName  = $20
 EndEnumeration
 
+#MenuManager_CommandIsControl = Bool(#PB_Shortcut_Command = #PB_Shortcut_Control)
+
 ;-
 ;- Constants - Private
 
@@ -384,7 +386,7 @@ Procedure.s ComposeShortcut(Shortcut.i, Flags.i = #PB_Default)
   EndIf
   
   CompilerIf (#True)
-    If (#PB_Shortcut_Command <> #PB_Shortcut_Control)
+    If (Not #MenuManager_CommandIsControl)
       If (Shortcut & #PB_Shortcut_Command)
         Result + Separator + CmdString
       EndIf
