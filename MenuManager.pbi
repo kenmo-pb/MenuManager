@@ -13,6 +13,10 @@ CompilerIf (Not Defined(MenuManager_UseXMLParser, #PB_Constant))
   #MenuManager_UseXMLParser = #True
 CompilerEndIf
 
+CompilerIf (Not Defined(MenuManager_UseExpatXMLParser, #PB_Constant))
+  #MenuManager_UseExpatXMLParser = #False
+CompilerEndIf
+
 CompilerIf (Not Defined(MenuManager_IgnoreImageErrors, #PB_Constant))
   #MenuManager_IgnoreImageErrors = #False
 CompilerEndIf
@@ -624,13 +628,74 @@ EndProcedure
 ;- ______________________________
 ;- _____  XML Parser Start  _____
 CompilerIf (#MenuManager_UseXMLParser)
+CompilerIf (#MenuManager_UseExpatXMLParser)
+
+Macro _MM_ChildXMLNode(_Node, _n = 1)
+  ChildXMLNode(_Node, _n)
+EndMacro
+
+Macro _MM_ExamineXMLAttributes(_Node)
+  ExamineXMLAttributes(_Node)
+EndMacro
+
+Macro _MM_FreeXML(_XML)
+  FreeXML(_XML)
+EndMacro
+
+Macro _MM_GetXMLAttribute(_Node, _Attribute)
+  GetXMLAttribute(_Node, _Attribute)
+EndMacro
+
+Macro _MM_GetXMLNodeName(_Node)
+  GetXMLNodeName(_Node)
+EndMacro
+
+Macro _MM_NextXMLAttribute(_Node)
+  NextXMLAttribute(_Node)
+EndMacro
+
+Macro _MM_NextXMLNode(_Node)
+  NextXMLNode(_Node)
+EndMacro
+
+Macro _MM_ParseXML(_Input)
+  ParseXML(#PB_Any, _Input)
+EndMacro
+
+Macro _MM_RootXMLNode(_XML)
+  RootXMLNode(_XML)
+EndMacro
+
+Macro _MM_XMLAttributeName(_Node)
+  XMLAttributeName(_Node)
+EndMacro
+
+Macro _MM_XMLAttributeValue(_Node)
+  XMLAttributeValue(_Node)
+EndMacro
+
+Macro _MM_XMLNodeFromPath(_ParentNode, _Path)
+  XMLNodeFromPath(_ParentNode, _Path)
+EndMacro
+
+Macro _MM_XMLNodeType(_Node)
+  XMLNodeType(_Node)
+EndMacro
+
+Macro _MM_XMLStatus(_XML)
+  XMLStatus(_XML)
+EndMacro
+
+CompilerElse
+XIncludeFile "MenuManager-XMLParser.pbi"
+CompilerEndIf
 
 Procedure.i _MenuManager_IfTest(*Node, *MM.MenuManager)
   Protected Result.i = #False
-  If (ExamineXMLAttributes(*Node))
-    While (NextXMLAttribute(*Node))
-      Protected Name.s = XMLAttributeName(*Node)
-      Protected Value.s = XMLAttributeValue(*Node)
+  If (_MM_ExamineXMLAttributes(*Node))
+    While (_MM_NextXMLAttribute(*Node))
+      Protected Name.s = _MM_XMLAttributeName(*Node)
+      Protected Value.s = _MM_XMLAttributeValue(*Node)
       If (_MenuManager_ParseExpression(Name, #True, *MM) = _MenuManager_ParseExpression(Value, #False, *MM))
         Result = #True
         Break
@@ -643,11 +708,11 @@ EndProcedure
 Procedure.s _MenuManager_GetOSOrGenericAttribute(*Node, Attribute.s)
   Protected Result.s = ""
   If (*Node And Attribute)
-    Protected Text.s = GetXMLAttribute(*Node, #_MenuManager_OSPrefix + Attribute)
+    Protected Text.s = _MM_GetXMLAttribute(*Node, #_MenuManager_OSPrefix + Attribute)
     If (Text <> "")
       Result = Text
     Else
-      Result = GetXMLAttribute(*Node, Attribute)
+      Result = _MM_GetXMLAttribute(*Node, Attribute)
     EndIf
   EndIf
   ProcedureReturn (Result)
@@ -656,17 +721,17 @@ EndProcedure
 Procedure.i _MenuManager_ParseXMLMenus(*MM.MenuManager, *Menu.MenuManagerMenu, *Node, DisallowTitles.i = #False)
   Protected Result.i = #True
   
-  Protected *Child = ChildXMLNode(*Node)
+  Protected *Child = _MM_ChildXMLNode(*Node)
   Protected ID.s
   While (*Child)
-    If (XMLNodeType(*Child) = #PB_XML_Normal)
-      Protected Name.s = LCase(Trim(GetXMLNodeName(*Child)))
+    If (_MM_XMLNodeType(*Child) = #PB_XML_Normal)
+      Protected Name.s = LCase(Trim(_MM_GetXMLNodeName(*Child)))
       Select (Name)
         
         Case "menu"
           If (*Menu = #Null)
             *Menu = AddElement(*MM\Menu())
-            *Menu\MMID = GetXMLAttribute(*Child, "mmid")
+            *Menu\MMID = _MM_GetXMLAttribute(*Child, "mmid")
             *Menu\MMID = _MenuManager_Normalize(*Menu\MMID)
             If (*Menu\MMID)
               If (Not _MenuManager_ParseXMLMenus(*MM, *Menu, *Child, #False))
@@ -692,7 +757,7 @@ Procedure.i _MenuManager_ParseXMLMenus(*MM.MenuManager, *Menu.MenuManagerMenu, *
             AddElement(*Menu\Action())
             *Menu\Action()\Type = #_MMBD_Title
             *Menu\Action()\Name = _MenuManager_GetOSOrGenericAttribute(*Child, "name")
-            *Menu\Action()\MMID = GetXMLAttribute(*Child, "mmid")
+            *Menu\Action()\MMID = _MM_GetXMLAttribute(*Child, "mmid")
             If (*Menu\Action()\MMID = "")
               *Menu\Action()\MMID = _MenuManager_RemoveUnderline(*Menu\Action()\Name, #False)
             EndIf
@@ -745,7 +810,7 @@ Procedure.i _MenuManager_ParseXMLMenus(*MM.MenuManager, *Menu.MenuManagerMenu, *
             AddElement(*Menu\Action())
             *Menu\Action()\Type = #_MMBD_Item
             *Menu\Action()\Name = _MenuManager_GetOSOrGenericAttribute(*Child, "name")
-            ID = GetXMLAttribute(*Child, "mmid")
+            ID = _MM_GetXMLAttribute(*Child, "mmid")
             If (ID = "")
               ID = _MenuManager_RemoveUnderline(*Menu\Action()\Name, #False)
             EndIf
@@ -776,7 +841,7 @@ Procedure.i _MenuManager_ParseXMLMenus(*MM.MenuManager, *Menu.MenuManagerMenu, *
           AddElement(*Menu\Action())
           *Menu\Action()\Type = #_MMBD_OpenSub
           *Menu\Action()\Name = _MenuManager_GetOSOrGenericAttribute(*Child, "name")
-          *Menu\Action()\MMID = GetXMLAttribute(*Child, "mmid")
+          *Menu\Action()\MMID = _MM_GetXMLAttribute(*Child, "mmid")
           If (Not _MenuManager_ParseXMLMenus(*MM, *Menu, *Child, #True))
             Result = #False
             Break
@@ -810,7 +875,7 @@ Procedure.i _MenuManager_ParseXMLMenus(*MM.MenuManager, *Menu.MenuManagerMenu, *
               Break
             EndIf
           Else
-            Protected *Else = XMLNodeFromPath(*Child, "else")
+            Protected *Else = _MM_XMLNodeFromPath(*Child, "else")
             If (*Else)
               If (Not _MenuManager_ParseXMLMenus(*MM, *Menu, *Else, DisallowTitles))
                 Result = #False
@@ -827,7 +892,7 @@ Procedure.i _MenuManager_ParseXMLMenus(*MM.MenuManager, *Menu.MenuManagerMenu, *
         
       EndSelect
     EndIf
-    *Child = NextXMLNode(*Child)
+    *Child = _MM_NextXMLNode(*Child)
   Wend
   ProcedureReturn (Result)
 EndProcedure
@@ -837,11 +902,11 @@ Procedure.i _MenuManager_ParseXMLItems(*MM.MenuManager, *Node)
   
   Protected Value.s
   Protected *Child
-  *Child = ChildXMLNode(*Node)
+  *Child = _MM_ChildXMLNode(*Node)
   While (*Child)
     
-    If (XMLNodeType(*Child) = #PB_XML_Normal)
-      Protected Name.s = LCase(Trim(GetXMLNodeName(*Child)))
+    If (_MM_XMLNodeType(*Child) = #PB_XML_Normal)
+      Protected Name.s = LCase(Trim(_MM_GetXMLNodeName(*Child)))
       
       If (Name = "item")
         Protected N.i
@@ -870,7 +935,7 @@ Procedure.i _MenuManager_ParseXMLItems(*MM.MenuManager, *Node)
           
           If (i = 1) ; This is a standalone item, or the first in a group
             *Item\Name = _MenuManager_GetOSOrGenericAttribute(*Child, "name")
-            *Item\MMID = GetXMLAttribute(*Child, "mmid")
+            *Item\MMID = _MM_GetXMLAttribute(*Child, "mmid")
             If (*Item\MMID = "")
               *Item\MMID = _MenuManager_RemoveUnderline(*Item\Name, #False)
             EndIf
@@ -976,7 +1041,7 @@ Procedure.i _MenuManager_ParseXMLItems(*MM.MenuManager, *Node)
             Break
           EndIf
         Else
-          Protected *Else = XMLNodeFromPath(*Child, "else")
+          Protected *Else = _MM_XMLNodeFromPath(*Child, "else")
           If (*Else)
             If (Not _MenuManager_ParseXMLItems(*MM, *Else))
               Result = #False
@@ -993,7 +1058,7 @@ Procedure.i _MenuManager_ParseXMLItems(*MM.MenuManager, *Node)
       
       EndIf
     EndIf
-    *Child = NextXMLNode(*Child)
+    *Child = _MM_NextXMLNode(*Child)
   Wend
   
   ProcedureReturn (Result)
@@ -1001,23 +1066,23 @@ EndProcedure
 
 Procedure.i _MenuManager_ParseXML(*MM.MenuManager, Text.s)
   Protected Result.i = #False
-  Protected XML.i = ParseXML(#PB_Any, Text)
+  Protected XML.i = _MM_ParseXML(Text)
   If (XML)
-    If (XMLStatus(XML) = #PB_XML_Success)
-      Protected *Main = XMLNodeFromPath(RootXMLNode(XML), "MenuManager")
+    If (_MM_XMLStatus(XML) = #PB_XML_Success)
+      Protected *Main = _MM_XMLNodeFromPath(_MM_RootXMLNode(XML), "MenuManager")
       If (*Main)
-        Protected Version.i = Val(GetXMLAttribute(*Main, "version"))
+        Protected Version.i = Val(_MM_GetXMLAttribute(*Main, "version"))
         Result = #True
         
-        If (GetXMLAttribute(*Main, "translate"))
-          *MM\Translate = _MenuManager_ParseCallback(*MM, GetXMLAttribute(*Main, "translate"))
+        If (_MM_GetXMLAttribute(*Main, "translate"))
+          *MM\Translate = _MenuManager_ParseCallback(*MM, _MM_GetXMLAttribute(*Main, "translate"))
           If (_MenuManager_LastError)
             Result = #False
           EndIf
         EndIf
         
         If (Result)
-          Protected *Items = XMLNodeFromPath(*Main, "items")
+          Protected *Items = _MM_XMLNodeFromPath(*Main, "items")
           If (*Items)
             Result = _MenuManager_ParseXMLItems(*MM, *Items)
             If (Result)
@@ -1033,7 +1098,7 @@ Procedure.i _MenuManager_ParseXML(*MM.MenuManager, Text.s)
         EndIf
         
         If (Result)
-          Protected *Menus = XMLNodeFromPath(*Main, "menus")
+          Protected *Menus = _MM_XMLNodeFromPath(*Main, "menus")
           If (*Menus)
             Result = _MenuManager_ParseXMLMenus(*MM, #Null, *Menus, #False)
           EndIf
@@ -1044,7 +1109,7 @@ Procedure.i _MenuManager_ParseXML(*MM.MenuManager, Text.s)
     Else
       _MenuManager_SetLastError(#MenuManager_Error_ParseError)
     EndIf
-    FreeXML(XML)
+    _MM_FreeXML(XML)
   Else
     _MenuManager_SetLastError(#MenuManager_Error_ParseError)
   EndIf
