@@ -1,3 +1,4 @@
+
 # MenuManager for PureBasic
 
 A library for handling dynamic menus and customizable shortcuts
@@ -24,7 +25,7 @@ It's as simple as:
 
 ## Documentation
 
-Documentation is next on the to-do list!
+Full documentation is being written!
 
 For now, check out the [examples](./examples/) folder.
 
@@ -33,4 +34,4 @@ For now, check out the [examples](./examples/) folder.
 
 MenuManager is by *kenmo-pb*.
 
-Unless you disable the XML frontend (`#MenuManager_UseXMLParser = #False`), MenuManager uses the Expat XML Library and Expat's license must be included with your released software.
+If you enable the Expat XML parser (`#MenuManager_UseExpatXMLParser = #True`), then Expat's license must be included with your released software.

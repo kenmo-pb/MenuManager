@@ -634,6 +634,10 @@ Macro _MM_ChildXMLNode(_Node, _n = 1)
   ChildXMLNode(_Node, _n)
 EndMacro
 
+Macro _MM_ComposeXML(_XML, _Flags = 0)
+  ComposeXML(_XML, _Flags)
+EndMacro
+
 Macro _MM_ExamineXMLAttributes(_Node)
   ExamineXMLAttributes(_Node)
 EndMacro
