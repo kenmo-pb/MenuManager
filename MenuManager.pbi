@@ -242,13 +242,13 @@ EndProcedure
 
 Procedure.s _MenuManager_PrepareUnderline(Name.s)
   Name = ReplaceString(Name, #_MenuManager_Escape2, #DC4$)
-  CompilerIf (#PB_Compiler_OS = #PB_OS_Windows)
+  If ((#PB_Compiler_OS = #PB_OS_Windows) Or (#PB_Compiler_OS = #PB_OS_Linux))
     Name = ReplaceString(Name, "&", #DC3$)
     Name = ReplaceString(Name, #_MenuManager_Escape, "&")
     Name = ReplaceString(Name, #DC3$, "&&")
-  CompilerElse
+  Else
     Name = RemoveString(Name, #_MenuManager_Escape)
-  CompilerEndIf
+  EndIf
   CompilerIf (#PB_Compiler_Unicode)
     Name = ReplaceString(Name, "...", Chr($2026))
   CompilerEndIf
