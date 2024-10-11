@@ -17,6 +17,14 @@ CompilerIf (Not Defined(MenuManager_UseExpatXMLParser, #PB_Constant))
   #MenuManager_UseExpatXMLParser = #False
 CompilerEndIf
 
+CompilerIf (Not Defined(MenuManager_DisableDebugWarnings, #PB_Constant))
+  #MenuManager_DisableDebugWarnings = #False
+CompilerEndIf
+
+CompilerIf (Not Defined(MenuManager_IncludeShortcutRequester, #PB_Constant))
+  #MenuManager_IncludeShortcutRequester = #True
+CompilerEndIf
+
 CompilerIf (Not Defined(MenuManager_IgnoreImageErrors, #PB_Constant))
   #MenuManager_IgnoreImageErrors = #False
 CompilerEndIf
@@ -27,10 +35,6 @@ CompilerEndIf
 
 CompilerIf (Not Defined(MenuManager_SkipFailedDomains, #PB_Constant))
   #MenuManager_SkipFailedDomains = #False
-CompilerEndIf
-
-CompilerIf (Not Defined(MenuManager_DisableDebugWarnings, #PB_Constant))
-  #MenuManager_DisableDebugWarnings = #False
 CompilerEndIf
 
 CompilerIf (Not Defined(_MenuManager_OS, #PB_Constant))
@@ -70,7 +74,12 @@ CompilerEndIf
 
 XIncludeFile "MenuManager-Errors.pbi"
 XIncludeFile "MenuManager-Shortcuts.pbi"
-XIncludeFile "MenuManager-Requester.pbi"
+CompilerIf (#MenuManager_IncludeShortcutRequester)
+  XIncludeFile "MenuManager-Requester.pbi"
+CompilerEndIf
+CompilerIf (#MenuManager_UseXMLParser And (Not #MenuManager_UseExpatXMLParser))
+  XIncludeFile "MenuManager-XMLParser.pbi"
+CompilerEndIf
 
 ;-
 ;- Constants - Public
@@ -628,6 +637,7 @@ EndProcedure
 ;- ______________________________
 ;- _____  XML Parser Start  _____
 CompilerIf (#MenuManager_UseXMLParser)
+
 CompilerIf (#MenuManager_UseExpatXMLParser)
 
 Macro _MM_ChildXMLNode(_Node, _n = 1)
@@ -690,8 +700,6 @@ Macro _MM_XMLStatus(_XML)
   XMLStatus(_XML)
 EndMacro
 
-CompilerElse
-XIncludeFile "MenuManager-XMLParser.pbi"
 CompilerEndIf
 
 Procedure.i _MenuManager_IfTest(*Node, *MM.MenuManager)
