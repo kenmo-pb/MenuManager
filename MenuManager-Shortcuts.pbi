@@ -354,6 +354,7 @@ Procedure.s ComposeShortcut(Shortcut.i, Flags.i = #PB_Default)
   ;   #MenuManager_Spaces
   ;   #MenuManager_UseMacSymbols
   ;   #MenuManager_UseReturnName
+  ;   #MenuManager_AllowNoBaseKey
   
   Protected Result.s
   
@@ -413,28 +414,30 @@ Procedure.s ComposeShortcut(Shortcut.i, Flags.i = #PB_Default)
   CompilerEndIf
   
   Shortcut = (Shortcut & #_MM_BaseKeyMask)
-  If (Shortcut)
-    Protected Base.s = _MM_ShortcutNameByValue(Shortcut)
-    If (Shortcut = #PB_Shortcut_Return)
-      If (Flags & #MenuManager_UseReturnName)
-        Base = "Return"
-      EndIf
-    EndIf
-    
-    If (Base)
-      Result + Separator + Base
-    ElseIf ((Shortcut >= $20) And (Shortcut <= $7E)) ; fall back to ASCII character
-      Result + Separator + Chr(Shortcut)
-    Else
-      CompilerIf (#True) ; finally: fall back to raw hex value
-        If (#True)
-          Result + Separator + "0x" + UCase(Hex(Shortcut))
-        Else
-          Result + Separator + "$" + UCase(Hex(Shortcut))
+  If (Shortcut Or (Flags & #MenuManager_AllowNoBaseKey))
+    If (Shortcut)
+      Protected Base.s = _MM_ShortcutNameByValue(Shortcut)
+      If (Shortcut = #PB_Shortcut_Return)
+        If (Flags & #MenuManager_UseReturnName)
+          Base = "Return"
         EndIf
-      CompilerElse
-        Result + Separator + "?"
-      CompilerEndIf
+      EndIf
+      
+      If (Base)
+        Result + Separator + Base
+      ElseIf ((Shortcut >= $20) And (Shortcut <= $7E)) ; fall back to ASCII character
+        Result + Separator + Chr(Shortcut)
+      Else
+        CompilerIf (#True) ; finally: fall back to raw hex value
+          If (#True)
+            Result + Separator + "0x" + UCase(Hex(Shortcut))
+          Else
+            Result + Separator + "$" + UCase(Hex(Shortcut))
+          EndIf
+        CompilerElse
+          Result + Separator + "?"
+        CompilerEndIf
+      EndIf
     EndIf
     
     Result = Mid(Result, 1 + Len(Separator))
