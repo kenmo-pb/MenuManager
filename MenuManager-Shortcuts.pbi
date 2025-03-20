@@ -204,12 +204,14 @@ Procedure.i IsBareShortcut(Shortcut.i)
         CompilerIf (#True)
           Result = #True
         CompilerEndIf
+        
       Default
         CompilerIf (#PB_Shortcut_Capital <> #Null)
           If (Shortcut = #PB_Shortcut_Capital)
             Result = #True
           EndIf
         CompilerEndIf
+        ;
         CompilerIf (Defined(VK_OEM_PLUS, #PB_Constant))
           Select (Shortcut)
             Case #VK_OEM_PLUS, #VK_OEM_MINUS
@@ -226,6 +228,14 @@ Procedure.i IsBareShortcut(Shortcut.i)
               Result = #True
           EndSelect
         CompilerEndIf
+        ;
+        CompilerIf ((#_MenuManager_OS = #PB_OS_Linux) Or (#_MenuManager_OS = #PB_OS_MacOS))
+          ; OSes which use printable ASCII chars as their Shortcut values...
+          If ((Shortcut >= $20) And (Shortcut <= $7E))
+            Result = #True
+          EndIf
+        CompilerEndIf
+        ;
     EndSelect
   EndIf
   
@@ -318,7 +328,7 @@ Procedure.i ParseShortcut(Text.s, Flags.i = #PB_Default)
               ElseIf ((Left(Term, 1) = "$") And (Len(Term) >= 2)) ; accept raw hex value, "$" prefix
                 Result | Val(Term)
               Else
-                Debug #PB_Compiler_Filename + ": " + #PB_Compiler_Procedure + "() term: " + Term
+                ;Debug #PB_Compiler_Filename + ": " + #PB_Compiler_Procedure + "() term: " + Term
                 Result = #Null
                 Break
               EndIf
@@ -702,6 +712,21 @@ DataSection
     
     ;Data.l #VK_OEM_8 : Data.i "OEM_8"
     ;Data.l #VK_OEM_102 : Data.i "OEM_102"
+  CompilerEndIf
+  ;
+  CompilerIf ((#_MenuManager_OS = #PB_OS_Linux) Or (#_MenuManager_OS = #PB_OS_MacOS))
+    ; OSes which use printable ASCII chars as their Shortcut values...
+    ; This assumes '=' key is same as '+' key (when you add Shift, on US layout...)
+    Data.l '=' : Data.i @"Plus"
+    Data.l '=' : Data.i @"="
+    Data.l '-' : Data.i @"Minus"
+    Data.l '-' : Data.i @"-"
+    Data.l ',' : Data.i @","
+    Data.l ',' : Data.i @"Comma"
+    Data.l '.' : Data.i @"."
+    Data.l '.' : Data.i @"Period"
+    ;Data.l '.' : Data.i @"Decimal"
+    ;Data.l '.' : Data.i @"Dec"
   CompilerEndIf
   ;
   Data.l #PB_Shortcut_Control : Data.i @"Ctrl"
