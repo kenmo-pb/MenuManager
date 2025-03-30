@@ -160,6 +160,7 @@ EndStructure
 Structure MenuManagerMenu
   MMID.s
   List Action.MenuManagerAction()
+  HasImages.i
 EndStructure
 
 Structure MenuManager
@@ -746,6 +747,7 @@ Procedure.i _MenuManager_ParseXMLMenus(*MM.MenuManager, *Menu.MenuManagerMenu, *
             *Menu\MMID = _MM_GetXMLAttribute(*Child, "mmid")
             *Menu\MMID = _MenuManager_Normalize(*Menu\MMID)
             If (*Menu\MMID)
+              *Menu\HasImages = #False
               If (Not _MenuManager_ParseXMLMenus(*MM, *Menu, *Child, #False))
                 Result = #False
                 Break
@@ -838,7 +840,11 @@ Procedure.i _MenuManager_ParseXMLMenus(*MM.MenuManager, *Menu.MenuManagerMenu, *
               ID = _MenuManager_Normalize(ID)
               *Menu\Action()\Item = _MenuManager_ItemByMMID(*MM, ID)
             EndIf
-            If (Not *Menu\Action()\Item)
+            If (*Menu\Action()\Item)
+              If (*Menu\Action()\Item\ImageID)
+                *Menu\HasImages = #True
+              EndIf
+            Else
               Result = #False
               If (ID)
                 _MenuManager_SetLastError(#MenuManager_Error_MissingItem, ID)
@@ -1370,12 +1376,15 @@ Procedure.i _MenuManager_BuildPopupMenu(*MM.MenuManager, Menu.i, MMID.s)
   ForEach (*MM\Menu())
     If (*MM\Menu()\MMID = MMID)
       Found = #True
+      
+      Protected UsePopupImageMenu.i = *MM\Menu()\HasImages
       Protected Created.i
-      If (*MM\HasImages)
+      If (UsePopupImageMenu)
         Created = CreatePopupImageMenu(Menu)
       Else
         Created = CreatePopupMenu(Menu)
       EndIf
+      
       If (Created)
         Result = #True
         Protected Text.s
