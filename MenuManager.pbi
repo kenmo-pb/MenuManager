@@ -107,6 +107,7 @@ Enumeration ; Build Action
   #_MMBD_Callback
   #_MMBD_Hide
   #_MMBD_Unhide
+  #_MMBD_VBar
 EndEnumeration
 
 Enumeration
@@ -870,6 +871,12 @@ Procedure.i _MenuManager_ParseXMLMenus(*MM.MenuManager, *Menu.MenuManagerMenu, *
         Case "bar"
           AddElement(*Menu\Action())
           *Menu\Action()\Type = #_MMBD_Bar
+          
+        Case "vbar"
+          CompilerIf (#True)
+            AddElement(*Menu\Action())
+            *Menu\Action()\Type = #_MMBD_VBar
+          CompilerEndIf
         
         Case "call"
           Protected *Callback
@@ -1371,6 +1378,7 @@ Procedure.i _MenuManager_BuildPopupMenu(*MM.MenuManager, Menu.i, MMID.s)
   Protected Found.i = #False
   
   *MM\BuildingPopup = #True
+  Protected NextItemVBar.i = #False
   
   MMID = _MenuManager_Normalize(MMID)
   ForEach (*MM\Menu())
@@ -1387,6 +1395,9 @@ Procedure.i _MenuManager_BuildPopupMenu(*MM.MenuManager, Menu.i, MMID.s)
       
       If (Created)
         Result = #True
+        If (Menu = #PB_Any)
+          Menu = Created
+        EndIf
         Protected Text.s
         ForEach *MM\Menu()\Action()
           With *MM\Menu()\Action()
@@ -1401,7 +1412,19 @@ Procedure.i _MenuManager_BuildPopupMenu(*MM.MenuManager, Menu.i, MMID.s)
                 If (\Item\Shortcut[#_MM_Assigned])
                   Text + #TAB$ + ComposeShortcut(\Item\Shortcut[#_MM_Assigned])
                 EndIf
-                MenuItem(\Item\Number, Text, \Item\ImageID)
+                CompilerIf (#PB_Compiler_OS = #PB_OS_Windows)
+                  If (NextItemVBar)
+                    AppendMenu_(MenuID(Menu), #MF_MENUBARBREAK, \Item\Number, Text)
+                    If (\Item\ImageID)
+                      ;? not yet supported!
+                    EndIf
+                  Else
+                    MenuItem(\Item\Number, Text, \Item\ImageID)
+                  EndIf
+                CompilerElse
+                  MenuItem(\Item\Number, Text, \Item\ImageID)
+                CompilerEndIf
+                NextItemVBar = #False
               Case #_MMBD_OpenSub
                 Text = _MenuManager_Translate(*MM, \Name, \MMID)
                 Text = _MenuManager_RemoveUnderline(Text, #True)
@@ -1410,6 +1433,8 @@ Procedure.i _MenuManager_BuildPopupMenu(*MM.MenuManager, Menu.i, MMID.s)
                 CloseSubMenu()
               Case #_MMBD_Bar
                 MenuBar()
+              Case #_MMBD_VBar
+                NextItemVBar = #True
               Case #_MMBD_Callback
                 CallFunctionFast(\Item)
               Case #_MMBD_Hide
